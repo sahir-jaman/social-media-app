@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-import json
 
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
@@ -14,12 +13,14 @@ from rest_framework.response import Response
 
 from authentication.renderer import UserRenderer
 from authentication.models import User
+from authentication.serializers import PublicUserRegistrationSerializer
 from users_app.models import UserConnection
 from users_app.serializers import (
     PrivateUserProfileDetailSerializer,
     UserConnectionSerializer,
 )
-from authentication.serializers import PublicUserRegistrationSerializer
+
+import json
 
 
 # Create your views here.
@@ -91,11 +92,13 @@ class DestroyUser(APIView):
                 )
             else:
                 return Response(
-                    {"success": False, "message": "not enough permissions"}, status= status.HTTP_400_BAD_REQUEST
+                    {"success": False, "message": "not enough permissions"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
         except User.DoesNotExist:
             return Response(
-                {"success": False, "message": "user does not exist"},status=status.HTTP_200_OK
+                {"success": False, "message": "user does not exist"},
+                status=status.HTTP_200_OK,
             )
 
 
@@ -160,7 +163,15 @@ class UserConnectionView(APIView):
         if serializer.is_valid():
             serializer.save()
             if connection_obj.connection_status == "ACCEPTED":
-                return Response({"message": "Friend request Accepted"}, status=status.HTTP_201_CREATED)
+                return Response(
+                    {"message": "Friend request Accepted"},
+                    status=status.HTTP_201_CREATED,
+                )
             else:
-                return Response({"message": "Friend request Declined"}, status=status.HTTP_201_CREATED)
-        return Response("User has not given you any request", status= status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "Friend request Declined"},
+                    status=status.HTTP_201_CREATED,
+                )
+        return Response(
+            "User has not given you any request", status=status.HTTP_400_BAD_REQUEST
+        )
